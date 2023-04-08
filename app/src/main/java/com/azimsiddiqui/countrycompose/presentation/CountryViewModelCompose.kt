@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.azimsiddiqui.countrycompose.data.model.CountryDetail
+import com.azimsiddiqui.countrycompose.domain.entity.CountryDetail
 import com.azimsiddiqui.countrycompose.domain.usecase.GetCountryDataUseCase
 import com.azimsiddiqui.countrycompose.util.ApiResult
 import com.azimsiddiqui.countrycompose.util.CountryState
@@ -20,8 +20,7 @@ class CountryViewModelCompose @Inject constructor(
     private val getCountryDataUseCase: GetCountryDataUseCase
 ) : ViewModel() {
 
-    var countryListState by mutableStateOf(CountryState())
-    var cityListState by mutableStateOf(CountryState())
+    var countryState by mutableStateOf(CountryState())
 
     val originalCountryList = mutableStateOf(emptyList<String>())
 
@@ -35,16 +34,17 @@ class CountryViewModelCompose @Inject constructor(
         getCountryDataUseCase.invoke().onEach {
             when (it) {
                 is ApiResult.Loading -> {
-                    countryListState = CountryState(isLoading = true)
+                    countryState = CountryState(isLoading = true)
                 }
                 is ApiResult.Success -> {
-                    countryDataList = it.data ?: emptyList()
+                    countryDataList = it.data.orEmpty()
                     val countryList = countryDataList.map { it.country }
                     originalCountryList.value = countryList
-                    countryListState = CountryState(countryList = countryList)
+                    countryState = CountryState(isLoading = false, countryList = countryList)
                 }
                 is ApiResult.Error -> {
-                    countryListState = CountryState(errorMessage = it.message ?: "")
+                    countryState =
+                        CountryState(isLoading = false, errorMessage = it.message.orEmpty())
                 }
             }
         }.launchIn(viewModelScope)
@@ -55,15 +55,11 @@ class CountryViewModelCompose @Inject constructor(
         val filteredList = if (query.isEmpty()) {
             originalCountryList.value
         } else {
-            val resultList = mutableListOf<String>()
-            for (country in originalCountryList.value) {
-                if (country.contains(query, true)) {
-                    resultList.add(country)
-                }
+            originalCountryList.value.filter { country ->
+                country.contains(query, true)
             }
-            resultList
         }
-        countryListState = countryListState.copy(countryList = filteredList)
+        countryState = countryState.copy(countryList = filteredList)
     }
 
 
@@ -71,8 +67,8 @@ class CountryViewModelCompose @Inject constructor(
     fun getCityList(country: String) {
         viewModelScope.launch {
             // get list of city name based on country
-            val cityList = countryDataList.find { it.country == country }?.cities ?: listOf()
-            countryListState = CountryState(cityList = cityList)
+            val cityList = countryDataList.firstOrNull { it.country == country }?.cities.orEmpty()
+            countryState = countryState.copy(cityList = cityList)
         }
     }
 

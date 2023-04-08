@@ -1,9 +1,9 @@
 package com.azimsiddiqui.countrycompose.common
 
-import com.azimsiddiqui.countrycompose.data.model.CountryDetail
 import com.azimsiddiqui.countrycompose.data.model.CountryDetailDTO
 import com.azimsiddiqui.countrycompose.data.model.CountryDto
-import com.azimsiddiqui.countrycompose.data.model.CountryModel
+import com.azimsiddiqui.countrycompose.domain.entity.CountryDetail
+import com.azimsiddiqui.countrycompose.domain.entity.CountryModel
 
 fun CountryDto.toDomain(): CountryModel {
     return CountryModel(

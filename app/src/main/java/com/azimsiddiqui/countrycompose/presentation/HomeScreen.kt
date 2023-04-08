@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -18,28 +17,24 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
     viewModel: CountryViewModelCompose,
-    navController: NavHostController,
     onItemClick: (country: String) -> Unit
 ) {
 
-    val countryState = viewModel.countryListState
+    val countryState = viewModel.countryState
 
-    if (countryState.isLoading) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
-        }
-    }
-    if (countryState.countryList != null) {
+    Column(modifier = Modifier.fillMaxSize()) {
+        TopBar(
+            "Country List",
+            modifier = Modifier.padding(10.dp),
+            onBackPress = { })
         Column(
             modifier = modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .background(Color.White)
                 .padding(10.dp)
         ) {
@@ -48,7 +43,12 @@ fun HomeScreen(
                 mutableStateOf("")
             }
 
-
+            if (countryState.isLoading) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            }
+            Spacer(modifier = Modifier.height(20.dp))
             SearchView(
                 searchState
             ) { query ->
@@ -57,41 +57,27 @@ fun HomeScreen(
             }
 
             Spacer(modifier = Modifier.height(20.dp))
-            LazyColumn {
-
-                items(items = countryState.countryList) { item ->
-                    Card(
-                        modifier = Modifier
-                            .padding(5.dp)
-                            .fillMaxWidth(),
-                        shape = RoundedCornerShape(5.dp),
-                        elevation = 2.dp,
-                        onClick = {
-                            navController.navigate(ScreenRoute.City.route)
-                            onItemClick(item)
-                        }
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(
-                                    brush = Brush.horizontalGradient(
-                                        colors = listOf(
-                                            Color.Red,
-                                            Color.Blue.copy(0.5f)
-                                        )
-                                    )
+            countryState.countryList?.let {
+                LazyColumn {
+                    items(countryState.countryList) { item ->
+                        ItemComposable(
+                            item = item,
+                            onclick = {
+                                onItemClick(item)
+                            }, backgroundColor = Brush.horizontalGradient(
+                                colors = listOf(
+                                    Color.Blue.copy(0.5f),
+                                    Color.Red.copy(0.5f)
                                 )
-                                .padding(10.dp),
-
-                            ) {
-                            Text(text = item, fontSize = 20.sp, color = Color.White)
-                        }
+                            )
+                        )
                     }
                 }
             }
         }
     }
+
+
     if (countryState.errorMessage.isNotEmpty()) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text(text = countryState.errorMessage)

@@ -1,4 +1,4 @@
-package com.azimsiddiqui.countrycompose.data.model
+package com.azimsiddiqui.countrycompose.domain.entity
 
 data class CountryModel(
     val countryList: List<CountryDetail>,

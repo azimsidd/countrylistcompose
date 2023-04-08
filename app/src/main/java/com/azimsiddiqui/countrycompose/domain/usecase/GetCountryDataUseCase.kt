@@ -1,6 +1,6 @@
 package com.azimsiddiqui.countrycompose.domain.usecase
 
-import com.azimsiddiqui.countrycompose.data.model.CountryDetail
+import com.azimsiddiqui.countrycompose.domain.entity.CountryDetail
 import com.azimsiddiqui.countrycompose.domain.repository.CountryRepository
 import com.azimsiddiqui.countrycompose.util.ApiResult
 import kotlinx.coroutines.flow.Flow

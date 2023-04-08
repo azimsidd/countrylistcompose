@@ -1,6 +1,6 @@
 package com.azimsiddiqui.countrycompose.domain.repository
 
-import com.azimsiddiqui.countrycompose.data.model.CountryDetail
+import com.azimsiddiqui.countrycompose.domain.entity.CountryDetail
 
 interface CountryRepository {
     suspend fun getCountryList(): List<CountryDetail>
